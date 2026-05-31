@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tree Watering Tracker</title>
+    <title>Мод Арчилгааны Бүртгэл</title>
     <style>
         :root {
             --primary: #2e7d32;
@@ -11,6 +11,7 @@
             --accent: #0288d1;
             --text: #333;
             --bg: #f5f7f6;
+            --danger: #d32f2f;
         }
 
         body {
@@ -24,185 +25,267 @@
         }
 
         .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .card {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
+            margin-bottom: 20px;
         }
 
-        h1 {
+        h1, h2, h3 {
             color: var(--primary);
             margin-top: 0;
-            font-size: 24px;
         }
 
-        .tree-icon {
-            font-size: 64px;
-            margin: 10px 0;
+        h1 { text-align: center; font-size: 24px; }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
         }
 
         button {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 12px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
             width: 100%;
-            margin-top: 15px;
+            transition: background 0.2s;
         }
 
-        button:hover {
-            background-color: #1b5e20;
+        button:hover { background-color: #1b5e20; }
+
+        .tree-list {
+            display: grid;
+            gap: 20px;
         }
 
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .history-section {
-            margin-top: 30px;
-            text-align: left;
-        }
-
-        h2 {
-            font-size: 18px;
-            border-bottom: 2px solid var(--primary-light);
-            padding-bottom: 8px;
-            color: #555;
+        .tree-item {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border-top: 5px solid var(--primary);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
         }
 
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #999;
+        .tree-info {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        .tree-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tree-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .tree-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #eee;
+        }
+
+        .action-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 15px 15px 15px;
+        }
+
+        .btn-water { background-color: var(--accent); }
+        .btn-water:hover { background-color: #01579b; }
+
+        .btn-delete { background-color: #ef5350; }
+        .btn-delete:hover { background-color: var(--danger); }
+
+        .history-log {
             font-size: 12px;
-            cursor: pointer;
-            width: auto;
-            margin: 0;
-            padding: 4px 8px;
-            font-weight: normal;
-        }
-        
-        .clear-btn:hover {
-            color: #d32f2f;
-            background: #ffebee;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            max-height: 250px;
+            background: var(--primary-light);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            max-height: 80px;
             overflow-y: auto;
         }
 
-        li {
-            background: var(--primary-light);
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid var(--primary);
-        }
-
         .no-data {
-            color: #888;
             text-align: center;
+            color: #888;
             font-style: italic;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="tree-icon">🌳</div>
-        <h1>Tree Watering Tracker</h1>
-        <p>Keep your tree happy and hydrated!</p>
-        
-        <button id="waterBtn">💧 I Watered the Tree</button>
+        <!-- Мод нэмэх хэсэг -->
+        <div class="card">
+            <h1>🌳 Мод Бүртгэх Хэсэг</h1>
+            <form id="treeForm">
+                <div class="form-group">
+                    <label for="treeName">Модны нэр / байршил:</label>
+                    <input type="text" id="treeName" placeholder="Жишээ нь: Нарс (Үүдний хажууд)" required>
+                </div>
+                <div class="form-group">
+                    <label for="treeHeight">Модны өндөр (см):</label>
+                    <input type="number" id="treeHeight" placeholder="Жишээ нь: 150" required>
+                </div>
+                <div class="form-group">
+                    <label for="treePic">Зураг оруулах:</label>
+                    <input type="file" id="treePic" accept="image/*">
+                </div>
+                <button type="submit">Шинэ мод нэмэх</button>
+            </form>
+        </div>
 
-        <div class="history-section">
-            <h2>
-                Watering History 
-                <button id="clearBtn" class="clear-btn">Clear All</button>
-            </h2>
-            <ul id="historyList">
-                </ul>
+        <!-- Моднуудын жагсаалт -->
+        <h2>Миний Моднууд</h2>
+        <div id="treeList" class="tree-list">
+            <!-- Моднууд энд харагдана -->
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const waterBtn = document.getElementById('waterBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const historyList = document.getElementById('historyList');
+        const treeForm = document.getElementById('treeForm');
+        const treeList = document.getElementById('treeList');
 
-        // Load existing logs from LocalStorage or start empty
-        let wateringLogs = JSON.parse(localStorage.getItem('treeWateringLogs')) || [];
+        // LocalStorage-оос дата унших
+        let myTrees = JSON.parse(localStorage.getItem('myTrees')) || [];
 
-        // Function to render logs to the screen
-        function renderLogs() {
-            historyList.innerHTML = '';
-
-            if (wateringLogs.length === 0) {
-                historyList.innerHTML = '<li class="no-data">No watering history yet.</li>';
-                return;
-            }
-
-            // Show newest dates first
-            wateringLogs.slice().reverse().forEach(log => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>📅 ${log.date}</span>
-                    <span style="color: var(--accent); font-weight:bold;">${log.time}</span>
-                `;
-                historyList.appendChild(li);
+        // Зургийг Base64 формат руу хөрвүүлэх (Хөтөч дээр хадгалахын тулд)
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) resolve(''); 
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
             });
         }
 
-        // Function to log a new watering event
-        waterBtn.addEventListener('click', () => {
-            const now = new Date();
-            
-            // Format Date (e.g., "Oct 24, 2023")
-            const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-            const formattedDate = now.toLocaleDateString(undefined, dateOptions);
-            
-            // Format Time (e.g., "04:30 PM")
-            const timeOptions = { hour: '2-digit', minute: '2-digit' };
-            const formattedTime = now.toLocaleTimeString(undefined, timeOptions);
+        // Моднуудыг дэлгэцэнд зурах функц
+        function renderTrees() {
+            treeList.innerHTML = '';
 
-            // Add to array and save to local storage
-            wateringLogs.push({ date: formattedDate, time: formattedTime });
-            localStorage.setItem('treeWateringLogs', JSON.stringify(wateringLogs));
-
-            // Refresh the list view
-            renderLogs();
-        });
-
-        // Function to clear logs
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear your watering history?')) {
-                wateringLogs = [];
-                localStorage.removeItem('treeWateringLogs');
-                renderLogs();
+            if (myTrees.length === 0) {
+                treeList.innerHTML = '<div class="no-data">Одоогоор бүртгэлтэй мод байхгүй байна.</div>';
+                return;
             }
+
+            myTrees.forEach((tree, index) => {
+                const item = document.createElement('div');
+                item.className = 'tree-item';
+
+                // Усалсан түүхийг бэлдэх
+                let historyHTML = 'Усалсан түүх байхгүй';
+                if (tree.logs && tree.logs.length > 0) {
+                    historyHTML = tree.logs.map(log => `💦 ${log}`).reverse().join('<br>');
+                }
+
+                item.innerHTML = `
+                    ${tree.image ? `<img src="${tree.image}" class="tree-image" alt="Tree">` : '<div class="tree-image" style="display:flex; align-items:center; justify-content:center; color:#aaa;">Зураггүй</div>'}
+                    <div class="tree-info">
+                        <div class="tree-name">${tree.name}</div>
+                        <div class="tree-details">📏 Өндөр: <strong>${tree.height} см</strong></div>
+                        <div class="tree-details">📅 Бүртгэсэн: ${tree.created}</div>
+                        <div class="history-log"><strong>Усалгаа:</strong><br>${historyHTML}</div>
+                    </div>
+                    <div class="action-btns">
+                        <button class="btn-water" onclick="waterTree(${index})">💧 Усалсан</button>
+                        <button class="btn-delete" onclick="deleteTree(${index})">Устгах</button>
+                    </div>
+                `;
+                treeList.appendChild(item);
+            });
+        }
+
+        // Шинэ мод нэмэх үйлдэл
+        treeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('treeName').value;
+            const height = document.getElementById('treeHeight').value;
+            const fileInput = document.getElementById('treePic');
+            
+            let imgBase64 = '';
+            if (fileInput.files.length > 0) {
+                imgBase64 = await convertImageToBase64(fileInput.files[0]);
+            }
+
+            const now = new Date();
+            const createdDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            const newTree = {
+                name: name,
+                height: height,
+                image: imgBase64,
+                created: createdDate,
+                logs: []
+            };
+
+            myTrees.push(newTree);
+            localStorage.setItem('myTrees', JSON.stringify(myTrees));
+            
+            treeForm.reset();
+            renderTrees();
         });
 
-        // Initial render when opening the page
-        renderLogs();
+        // Мод услах функц
+        window.waterTree = function(index) {
+            const now = new Date();
+            const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            myTrees[index].logs.push(timestamp);
+            localStorage.setItem('myTrees', JSON.stringify(myTrees));
+            renderTrees();
+        };
+
+        // Мод устгах функц
+        window.deleteTree = function(index) {
+            if (confirm('Энэ модыг жагсаалтаас устгах уу?')) {
+                myTrees.splice(index, 1);
+                localStorage.setItem('myTrees', JSON.stringify(myTrees));
+                renderTrees();
+            }
+        };
+
+        // Эхлүүлэх
+        renderTrees();
     </script>
 </body>
 </html>
