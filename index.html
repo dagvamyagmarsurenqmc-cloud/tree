@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Watering Tracker</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #e8f5e9;
+            --accent: #0288d1;
+            --text: #333;
+            --bg: #f5f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .tree-icon {
+            font-size: 64px;
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .history-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        h2 {
+            font-size: 18px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 12px;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            padding: 4px 8px;
+            font-weight: normal;
+        }
+        
+        .clear-btn:hover {
+            color: #d32f2f;
+            background: #ffebee;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        li {
+            background: var(--primary-light);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .no-data {
+            color: #888;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="tree-icon">🌳</div>
+        <h1>Tree Watering Tracker</h1>
+        <p>Keep your tree happy and hydrated!</p>
+        
+        <button id="waterBtn">💧 I Watered the Tree</button>
+
+        <div class="history-section">
+            <h2>
+                Watering History 
+                <button id="clearBtn" class="clear-btn">Clear All</button>
+            </h2>
+            <ul id="historyList">
+                </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const waterBtn = document.getElementById('waterBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const historyList = document.getElementById('historyList');
+
+        // Load existing logs from LocalStorage or start empty
+        let wateringLogs = JSON.parse(localStorage.getItem('treeWateringLogs')) || [];
+
+        // Function to render logs to the screen
+        function renderLogs() {
+            historyList.innerHTML = '';
+
+            if (wateringLogs.length === 0) {
+                historyList.innerHTML = '<li class="no-data">No watering history yet.</li>';
+                return;
+            }
+
+            // Show newest dates first
+            wateringLogs.slice().reverse().forEach(log => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>📅 ${log.date}</span>
+                    <span style="color: var(--accent); font-weight:bold;">${log.time}</span>
+                `;
+                historyList.appendChild(li);
+            });
+        }
+
+        // Function to log a new watering event
+        waterBtn.addEventListener('click', () => {
+            const now = new Date();
+            
+            // Format Date (e.g., "Oct 24, 2023")
+            const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+            const formattedDate = now.toLocaleDateString(undefined, dateOptions);
+            
+            // Format Time (e.g., "04:30 PM")
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            const formattedTime = now.toLocaleTimeString(undefined, timeOptions);
+
+            // Add to array and save to local storage
+            wateringLogs.push({ date: formattedDate, time: formattedTime });
+            localStorage.setItem('treeWateringLogs', JSON.stringify(wateringLogs));
+
+            // Refresh the list view
+            renderLogs();
+        });
+
+        // Function to clear logs
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear your watering history?')) {
+                wateringLogs = [];
+                localStorage.removeItem('treeWateringLogs');
+                renderLogs();
+            }
+        });
+
+        // Initial render when opening the page
+        renderLogs();
+    </script>
+</body>
+</html>
